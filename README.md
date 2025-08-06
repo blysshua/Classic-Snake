@@ -14,7 +14,9 @@ chmod +x snake.sh
 ./snake.sh
 
 I used nerdfonts for
+
 SNAKE_HEAD=''
+
 FOOD=''
 
 However, you can replace it with any symbols or install nerdfonts to render more icons:
