@@ -6,7 +6,7 @@ It's my first time uploading code to github, and I am learning how to write scri
 
 ![snake](https://github.com/user-attachments/assets/fafb0db7-3af5-4c40-8ada-1b0ec39da4fd)
 
-Installation:
+### Installation:
 
   in terminal:
 ```bash  
@@ -31,7 +31,7 @@ https://www.nerdfonts.com/font-downloads
 
 
 
-Optional:
+### Optional:
 
 create an alias in bashrc:
 ```bash
