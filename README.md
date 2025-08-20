@@ -9,7 +9,7 @@ It's my first time uploading code to github, and I am learning how to write scri
 Installation:
 
   in terminal:
-  
+```bash  
 git clone https://github.com/blysshua/Classic-Snake.git
 
 cd Classic-Snake
@@ -17,7 +17,7 @@ cd Classic-Snake
 chmod +x snake.sh
 
 ./snake.sh
-
+```
 
 
 I used nerdfonts for
@@ -34,11 +34,11 @@ https://www.nerdfonts.com/font-downloads
 Optional:
 
 create an alias in bashrc:
-
+```bash
 nano ~/.bashrc
 
 alias snake="/home/<username>/Classic‑Snake/snake.sh"
-
+```
 
 
 
