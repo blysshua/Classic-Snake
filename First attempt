@@ -1,0 +1,163 @@
+#!/bin/bash
+
+# Snake game in Bash
+# Controls: W (up), A (left), S (down), D (right). Ctrl+C to quit.
+
+trap 'stty echo; tput cnorm; clear; exit' SIGINT
+
+# Game settings
+HEIGHT=20
+WIDTH=40
+SNAKE_HEAD='󰝤'
+SNAKE_BODY='󰝤'
+FOOD=''
+DELAY=0.1
+
+# Initial snake
+snake_x=(20 19 18)
+snake_y=(10 10 10)
+dir='right'
+food_x=0
+food_y=0
+score=0
+
+# Draw border (called once at setup)
+draw_border() {
+    clear
+    # Top border
+    echo -n "┌"
+    for ((i=1; i<=WIDTH; i++)); do echo -n "─"; done
+    echo "┐"
+    # Side walls
+    for ((i=1; i<=HEIGHT; i++)); do
+        echo -n "│"
+        for ((j=1; j<=WIDTH; j++)); do echo -n " "; done
+        echo "│"
+    done
+    # Bottom border
+    echo -n "└"
+    for ((i=1; i<=WIDTH; i++)); do echo -n "─"; done
+    echo "┘"
+}
+
+# Draw snake and food
+draw_snake() {
+    tput cup $food_y $food_x; echo -n "$FOOD"
+    for ((i=0; i<${#snake_x[@]}; i++)); do
+        tput cup ${snake_y[$i]} ${snake_x[$i]}
+        if ((i == 0)); then
+            echo -n "$SNAKE_HEAD"
+        else
+            echo -n "$SNAKE_BODY"
+        fi
+    done
+    tput cup 0 0
+    echo "Score: $score"
+}
+
+# Update snake and food display (optimized to reduce flicker)
+update_display() {
+    # Clear tail if snake didn't eat food
+    if [[ $1 -eq 0 ]]; then
+        tput cup ${tail_y} ${tail_x}; echo -n " "
+    fi
+    # Draw new head
+    tput cup ${snake_y[0]} ${snake_x[0]}; echo -n "$SNAKE_HEAD"
+    # Draw food
+    tput cup $food_y $food_x; echo -n "$FOOD"
+    # Update score
+    tput cup 0 0; echo "Score: $score"
+}
+
+# Spawn food
+spawn_food() {
+    while :; do
+        food_x=$((RANDOM % WIDTH + 1))
+        food_y=$((RANDOM % HEIGHT + 1))
+        for ((i=0; i<${#snake_x[@]}; i++)); do
+            if [[ ${snake_x[$i]} -eq $food_x && ${snake_y[$i]} -eq $food_y ]]; then
+                continue 2
+            fi
+        done
+        break
+    done
+}
+
+# Read input
+read_input() {
+    read -rsn1 -t $DELAY key
+    key=$(echo "$key" | tr '[:upper:]' '[:lower:]')
+    case "$key" in
+        w) [[ $dir != "down" ]] && dir="up" ;;
+        s) [[ $dir != "up" ]] && dir="down" ;;
+        a) [[ $dir != "right" ]] && dir="left" ;;
+        d) [[ $dir != "left" ]] && dir="right" ;;
+        *) ;;
+    esac
+}
+
+# Update snake position
+update_snake() {
+    head_x=${snake_x[0]}
+    head_y=${snake_y[0]}
+    tail_x=${snake_x[-1]}  # Store tail position
+    tail_y=${snake_y[-1]}
+
+    case "$dir" in
+        up)    ((head_y--)) ;;
+        down)  ((head_y++)) ;;
+        left)  ((head_x--)) ;;
+        right) ((head_x++)) ;;
+    esac
+
+    # Check collisions
+    if (( head_x < 1 || head_x > WIDTH || head_y < 1 || head_y > HEIGHT )); then
+        game_over
+    fi
+
+    for ((i=1; i<${#snake_x[@]}; i++)); do
+        if [[ ${snake_x[$i]} -eq $head_x && ${snake_y[$i]} -eq $head_y ]]; then
+            game_over
+        fi
+    done
+
+    # Move snake
+    snake_x=($head_x "${snake_x[@]}")
+    snake_y=($head_y "${snake_y[@]}")
+
+    # Eat food
+    ate_food=0
+    if [[ $head_x -eq $food_x && $head_y -eq $food_y ]]; then
+        ((score++))
+        spawn_food
+        ate_food=1
+    else
+        unset 'snake_x[-1]'
+        unset 'snake_y[-1]'
+    fi
+
+    update_display $ate_food
+}
+
+# End game
+game_over() {
+    tput cup $((HEIGHT+3)) 0
+    echo "Game Over! Your score: $score"
+    echo "Controls: W (up), A (left), S (down), D (right), Ctrl+C to quit"
+    stty echo
+    tput cnorm
+    exit
+}
+
+# Setup
+stty -echo
+tput civis
+draw_border
+spawn_food
+draw_snake
+
+# Game loop
+while :; do
+    read_input
+    update_snake
+done
