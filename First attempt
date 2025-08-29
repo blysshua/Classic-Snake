@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Snake game in Bash
-# Controls: W (up), A (left), S (down), D (right). Ctrl+C to quit.
-
 trap 'stty echo; tput cnorm; clear; exit' SIGINT
 
 # Game settings
@@ -21,7 +18,7 @@ food_x=0
 food_y=0
 score=0
 
-# Draw border (called once at setup)
+# Draw border
 draw_border() {
     clear
     # Top border
@@ -55,7 +52,6 @@ draw_snake() {
     echo "Score: $score"
 }
 
-# Update snake and food display (optimized to reduce flicker)
 update_display() {
     # Clear tail if snake didn't eat food
     if [[ $1 -eq 0 ]]; then
